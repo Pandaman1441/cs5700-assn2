@@ -13,7 +13,6 @@ object TrackingSimulator {
 
     fun readFile(fileName: String): List<ShippingUpdate> {
         val updates = mutableListOf<ShippingUpdate>()
-        // Logic to read updates from the file and return a list of ShippingUpdate instances
         val lines = File(fileName).readLines()
         lines.forEach { line ->
             val parts = line.split(",")
@@ -37,25 +36,25 @@ object TrackingSimulator {
         return updates
     }
 
-    fun runSimulation(fileName: String) {
+    suspend fun runSimulation(fileName: String) {
         val updates = readFile(fileName)
-        GlobalScope.launch {
+        coroutineScope {
             updates.forEach { update ->
-                val shipment = findShipment(update.id)
-                if (shipment != null) {
-                    shipment.addUpdate(update)
-                } else if (update.newStatus == "created") {
-                    val newShipment = Shipment().apply {
-                        id = update.id
-                        status = update.newStatus
+                launch {
+                    val shipment = findShipment(update.id)
+                    if (shipment != null) {
+                        shipment.addUpdate(update)
+                    } else if (update.newStatus == "created") {
+                        val newShipment = Shipment().apply {
+                            id = update.id
+                            status = update.newStatus
+                        }
+                        addShipment(newShipment)
+                        newShipment.addUpdate(update)
                     }
-                    addShipment(newShipment)
-                    newShipment.addUpdate(update)
+                    delay(1000) // Delay after processing the update
                 }
-                delay(1000)
             }
         }
     }
-
-
 }
