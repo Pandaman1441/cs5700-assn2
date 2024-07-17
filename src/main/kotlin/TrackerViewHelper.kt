@@ -8,15 +8,19 @@ class TrackerViewHelper: Observer {
     var shipmentUpdateHistory by mutableStateOf(listOf<ShippingUpdate>())
     var expectedShipmentDeliveryDate by mutableStateOf("")
     var shipmentStatus by mutableStateOf("")
+    var location by mutableStateOf("")
+    var invalidMessage by mutableStateOf("")
+
     fun trackShipment(id: String){
         shipmentId = id
         val shipment = TrackingSimulator.findShipment(id)
         if (shipment != null) {
             shipment.subscribe(this)
             update(shipment)
+            invalidMessage = ""
         }
         else{
-            shipmentStatus = "Invalid shipment ID"
+            invalidMessage = "Invalid shipment ID"
         }
     }
 
@@ -28,6 +32,7 @@ class TrackerViewHelper: Observer {
         shipmentUpdateHistory = emptyList()
         expectedShipmentDeliveryDate = ""
         shipmentStatus = ""
+        location = ""
     }
 
     override fun update(shipment: Shipment) {
@@ -36,6 +41,7 @@ class TrackerViewHelper: Observer {
             shipmentUpdateHistory = shipment.updateHistory
             expectedShipmentDeliveryDate = shipment.expectedDeliveryDateTimestamp.toString()
             shipmentStatus = shipment.status
+            location = shipment.currentLocation
         }
     }
 }

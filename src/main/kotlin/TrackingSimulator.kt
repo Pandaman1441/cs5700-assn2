@@ -11,33 +11,7 @@ object TrackingSimulator {
         shipments.add(shipment)
     }
 
-    fun readFile(fileName: String): List<ShippingUpdate> {
-        val updates = mutableListOf<ShippingUpdate>()
-        val lines = File(fileName).readLines()
-        lines.forEach { line ->
-            val parts = line.split(",")
-            val updateType = parts[0]
-            val shipmentId = parts[1]
-            val timestamp = parts[2].toLong()
-            val otherInfo = parts.getOrNull(3) ?: ""
-            val previousStatus = when (updateType) {
-                "created" -> ""
-                "shipped" -> "created"
-                "delivered" -> "shipped"
-                "lost" -> "shipped"
-                "canceled" -> "shipped"
-                "noteadded" -> "shipped"
-                "location" -> "shipped"
-                "delayed" -> "shipped"
-                else -> ""
-            }
-            updates.add(ShippingUpdate(previousStatus, updateType, shipmentId))
-        }
-        return updates
-    }
-
     suspend fun runSimulation(fileName: String) {
-        val updates = readFile(fileName)
         var timer = 60
         coroutineScope {
                 launch {
@@ -50,6 +24,17 @@ object TrackingSimulator {
                                 id = parts[1]
                             }
                             addShipment(newShipment)
+                        }
+                        else {
+                            when (parts[0]){
+                                "shipped" -> ExpectedShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong(), parts[3])
+                                "location" -> LocationShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong(), parts[3])
+                                "delayed" -> ExpectedShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong(), parts[3])
+                                "noteadded" -> NoteShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong(), parts[3])
+                                "lost" -> FinalShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong())
+                                "canceled" -> FinalShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong())
+                                "delivered" -> FinalShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong())
+                            }
                         }
 
                         println(timer)

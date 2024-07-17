@@ -1,9 +1,10 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
@@ -16,13 +17,15 @@ import kotlinx.coroutines.launch
 @Composable
 @Preview
 fun App() {
-    val tracker = remember { TrackerViewHelper() }
+    val trackers = remember { mutableStateListOf<TrackerViewHelper>() }
     var trackingID by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
+    var invalidTrackingId by remember { mutableStateOf("") }
 
-    coroutineScope.launch{
+    coroutineScope.launch {
         TrackingSimulator.runSimulation("src/main/assets/test.txt")
     }
+
     MaterialTheme {
         Column(
             modifier = Modifier
@@ -32,29 +35,85 @@ fun App() {
         ) {
             TextField(
                 value = trackingID,
-                onValueChange = { trackingID = it}
+                onValueChange = { trackingID = it }
             )
             Spacer(modifier = Modifier.height(8.dp))
             Row {
-                Button(onClick = { tracker.trackShipment(trackingID) }) {
+                Button(onClick = {
+                    val tracker = TrackerViewHelper()
+                    tracker.trackShipment(trackingID)
+                    if (tracker.invalidMessage.isEmpty()){
+                        trackers.add(tracker)
+                        invalidTrackingId = ""
+                    }
+                    else{
+                        invalidTrackingId = tracker.invalidMessage
+                    }
+                }) {
                     Text("Track Shipment")
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = { tracker.stopTracking() }) {
-                    Text("Stop Tracking")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (invalidTrackingId.isNotEmpty()){
+                Text(
+                    text = invalidTrackingId,
+                    color = MaterialTheme.colors.error,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(trackers) { tracker ->
+                    ShipmentCard(tracker, onRemove = { tracker.stopTracking(); trackers.remove(tracker) })
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Status: ${tracker.shipmentStatus}")
-            Text("Location: ${tracker.shipmentNotes.joinToString(", ")}")
-            Text("Expected Delivery Date: ${tracker.expectedShipmentDeliveryDate}")
-            Text("Updates: ${tracker.shipmentUpdateHistory.joinToString { "${it.previousStatus} to ${it.newStatus} on ${it.timestamp}" }}")
         }
     }
-
 }
+
+@Composable
+fun ShipmentCard(tracker: TrackerViewHelper, onRemove: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = 4.dp
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("Shipment ID: ${tracker.shipmentId}")
+                    Text("Status: ${tracker.shipmentStatus}")
+                    Text("Location: ${tracker.location}")
+                    Text("Expected Delivery Date: ${tracker.expectedShipmentDeliveryDate}")
+                }
+                IconButton(onClick = onRemove) {
+                    Icon(Icons.Default.Close, contentDescription = "Remove")
+                }
+            }
+            Text("Updates:")
+            tracker.shipmentUpdateHistory.forEach { update ->
+                Text("- ${update.previousStatus} to ${update.newStatus} on ${update.timestamp}")
+            }
+            Text("Notes:")
+            tracker.shipmentNotes.forEach { note ->
+                Text("- $note")
+            }
+        }
+    }
+}
+
 fun main() = application {
     Window(onCloseRequest = ::exitApplication){
         App()
     }
 }
+

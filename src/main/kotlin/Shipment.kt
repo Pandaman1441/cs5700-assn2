@@ -13,8 +13,9 @@ class Shipment: Subject {
     }
 
     fun addUpdate(update: ShippingUpdate){
-        updateHistory.add(update)
-        status = update.newStatus
+        if (update.newStatus != "location") {
+            updateHistory.add(update)
+        }
         notifyObservers()
     }
 
@@ -32,7 +33,4 @@ class Shipment: Subject {
             it.update(this)
         }
     }
-
-
-
 }
