@@ -15,9 +15,6 @@ class Shipment: Subject {
     fun addUpdate(update: ShippingUpdate){
         updateHistory.add(update)
         status = update.newStatus
-        if (update.newStatus == "shipped" || update.newStatus == "delayed") {
-            expectedDeliveryDateTimestamp = update.timestamp
-        }
         notifyObservers()
     }
 

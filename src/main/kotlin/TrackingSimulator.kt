@@ -31,30 +31,32 @@ object TrackingSimulator {
                 "delayed" -> "shipped"
                 else -> ""
             }
-            updates.add(ShippingUpdate(previousStatus, updateType, shipmentId, timestamp))
+            updates.add(ShippingUpdate(previousStatus, updateType, shipmentId))
         }
         return updates
     }
 
     suspend fun runSimulation(fileName: String) {
         val updates = readFile(fileName)
+        var timer = 60
         coroutineScope {
-            updates.forEach { update ->
                 launch {
-                    val shipment = findShipment(update.id)
-                    if (shipment != null) {
-                        shipment.addUpdate(update)
-                    } else if (update.newStatus == "created") {
-                        val newShipment = Shipment().apply {
-                            id = update.id
-                            status = update.newStatus
+                    val lines = File(fileName).readLines()
+                    lines.forEach { line ->
+                        val parts = line.split(",")
+                        if (parts[0] == "created"){
+                            val newShipment = Shipment().apply {
+                                status = parts[0]
+                                id = parts[1]
+                            }
+                            addShipment(newShipment)
                         }
-                        addShipment(newShipment)
-                        newShipment.addUpdate(update)
+
+                        println(timer)
+                        timer--
+                        delay(1000)
                     }
-                    delay(1000) // Delay after processing the update
                 }
-            }
         }
     }
 }
