@@ -13,7 +13,7 @@ class TrackerViewHelper: Observer {
 
     fun trackShipment(id: String){
         shipmentId = id
-        val shipment = TrackingSimulator.findShipment(id)
+        val shipment = TrackingSimulator.findShipment(shipmentId)
         if (shipment != null) {
             shipment.subscribe(this)
             update(shipment)
