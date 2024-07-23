@@ -12,12 +12,14 @@ import kotlin.reflect.KFunction5
 
 object TrackingSimulator {
     private val shipments = mutableListOf<Shipment>()
-    private val updateMapping: Map<String, KFunction5<String, String, String, Long, String, ShippingUpdate>> = mapOf(
+    private val updateMapping = mapOf(
         "shipped" to ::ExpectedShippingUpdate,
         "location" to ::LocationShippingUpdate,
         "delayed" to ::ExpectedShippingUpdate,
-        "noteadded" to ::NoteShippingUpdate
-
+        "noteadded" to ::NoteShippingUpdate,
+        "lost" to ::FinalShippingUpdate,
+        "canceled" to ::FinalShippingUpdate,
+        "delivered" to ::FinalShippingUpdate
     )
 
     fun findShipment(id: String): Shipment?{
@@ -45,20 +47,7 @@ object TrackingSimulator {
                 }.start(wait = false)
             }
         }
-
-//                    val lines = File(fileName).readLines()
-//                    lines.forEach { line ->
-//                        val parts = line.split(",")
-//                        if (parts[0] == "created"){
-//                            addShipment(createShipment(parts[0], parts[1], parts[2]))
-//                        }
-//                        else {
-//                            when (parts[0]){
-//
-//                            }
-//                        }
-//                    }
-                }
+    }
 
     private fun createShipment( shipmentStatus: String, shipmentId: String, type: String): Shipment {
         return when (type){
@@ -89,9 +78,10 @@ object TrackingSimulator {
             addShipment(createShipment(parts[0], parts[1], parts[2]))
         }
         else {
-            when (parts[0]) {
-                
-            }
+            val previousStatus = findShipment(parts[1])?.status
+            val updateType = parts[0]
+            val updateArguments = listOf(previousStatus, updateType, parts[1],parts[2].toLong(), parts.getOrNull(3) ?: "")
+            updateMapping[updateType]?.call(*updateArguments.toTypedArray())
         }
     }
 }
