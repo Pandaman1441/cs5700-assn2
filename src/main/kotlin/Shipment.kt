@@ -1,4 +1,4 @@
-class Shipment: Subject {
+abstract class Shipment: Subject {
     var status = ""
     var id = ""
     val notes = mutableListOf<String>()
@@ -12,13 +12,7 @@ class Shipment: Subject {
         notifyObservers()
     }
 
-    fun addUpdate(update: ShippingUpdate){
-        if (update.newStatus != "location") {
-            updateHistory.add(update)
-        }
-        notifyObservers()
-    }
-
+    protected abstract fun addUpdate(update: ShippingUpdate)
 
     override fun subscribe(observer: Observer) {
         observers.add(observer)
@@ -32,5 +26,29 @@ class Shipment: Subject {
         observers.forEach{
             it.update(this)
         }
+    }
+}
+
+class StandardShipment(): Shipment() {
+    override fun addUpdate(update: ShippingUpdate) {
+        if (update.newStatus != "location") {
+            updateHistory.add(update)
+        }
+        notifyObservers()
+    }
+}
+class ExpressShipment(): Shipment() {
+    override fun addUpdate(update: ShippingUpdate) {
+        TODO("Not yet implemented")
+    }
+}
+class OvernightShipment(): Shipment() {
+    override fun addUpdate(update: ShippingUpdate) {
+        TODO("Not yet implemented")
+    }
+}
+class BulkShipment(): Shipment(){
+    override fun addUpdate(update: ShippingUpdate) {
+        TODO("Not yet implemented")
     }
 }
