@@ -12,7 +12,7 @@ abstract class Shipment: Subject {
         notifyObservers()
     }
 
-    protected abstract fun addUpdate(update: ShippingUpdate)
+    abstract fun addUpdate(update: ShippingUpdate)
 
     override fun subscribe(observer: Observer) {
         observers.add(observer)

@@ -1,6 +1,10 @@
 import androidx.compose.ui.window.application
+import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -23,31 +27,38 @@ object TrackingSimulator {
         shipments.add(shipment)
     }
 
-    suspend fun runSimulation(fileName: String) {
-        embeddedServer(Netty, 8080){
-            routing {
-                get("/"){
-
-                }
-            }
-        }
+    suspend fun runSimulation() {
         coroutineScope {
-                launch {
-                    val lines = File(fileName).readLines()
-                    lines.forEach { line ->
-                        val parts = line.split(",")
-                        if (parts[0] == "created"){
-                            addShipment(createShipment(parts[0], parts[1], parts[2]))
+            launch {
+                embeddedServer(Netty, 8080){
+                    routing {
+                        get("/") {
+                            call.respondText(File("src/main/assets/index.html").readText(), ContentType.Text.Html)
                         }
-                        else {
-                            when (parts[0]){
-
-                            }
+                        post("/data") {
+                            val data = call.receiveText()
+                            println(data)
+                            processLine(data)
+                            call.respondText { "Received" }
                         }
                     }
-                }
+                }.start(wait = false)
+            }
         }
-    }
+
+//                    val lines = File(fileName).readLines()
+//                    lines.forEach { line ->
+//                        val parts = line.split(",")
+//                        if (parts[0] == "created"){
+//                            addShipment(createShipment(parts[0], parts[1], parts[2]))
+//                        }
+//                        else {
+//                            when (parts[0]){
+//
+//                            }
+//                        }
+//                    }
+                }
 
     private fun createShipment( shipmentStatus: String, shipmentId: String, type: String): Shipment {
         return when (type){
@@ -70,5 +81,17 @@ object TrackingSimulator {
             else -> throw IllegalArgumentException("Unknown shipment type: $type")
         }
 
+    }
+
+    private fun processLine(line: String) {
+        val parts = line.split(",")
+        if (parts[0] == "created") {
+            addShipment(createShipment(parts[0], parts[1], parts[2]))
+        }
+        else {
+            when (parts[0]) {
+                
+            }
+        }
     }
 }

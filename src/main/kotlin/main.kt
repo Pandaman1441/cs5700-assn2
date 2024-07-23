@@ -23,7 +23,7 @@ fun App() {
     var invalidTrackingId by remember { mutableStateOf("") }
 
     coroutineScope.launch {
-        TrackingSimulator.runSimulation("src/main/assets/test.txt")
+        TrackingSimulator.runSimulation()
     }
 
     MaterialTheme {
