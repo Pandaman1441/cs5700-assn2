@@ -43,6 +43,7 @@ class ExpressShipment(): Shipment() {
         if (expectedDeliveryDateTimestamp > createdTimeStamp + 3 * 24 * 60 * 60 * 1000){
             addNote("Shipment expected later than the expected 3 days for express shipping")
         }
+        notifyObservers()
     }
 }
 class OvernightShipment(): Shipment() {
@@ -50,6 +51,7 @@ class OvernightShipment(): Shipment() {
         if (expectedDeliveryDateTimestamp > createdTimeStamp + 24 * 60 * 60 * 1000){
             addNote("Shipment expected later than the expected 1 day for overnight shipping")
         }
+        notifyObservers()
     }
 }
 class BulkShipment(): Shipment(){
@@ -57,5 +59,6 @@ class BulkShipment(): Shipment(){
         if (expectedDeliveryDateTimestamp < createdTimeStamp + 3 * 24 * 60 * 60 * 1000){
             addNote("Shipment expected sooner than the required 3 days waiting time for bulk shipping")
         }
+        notifyObservers()
     }
 }
