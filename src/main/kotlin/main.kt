@@ -12,6 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -93,7 +97,7 @@ fun ShipmentCard(tracker: TrackerViewHelper, onRemove: () -> Unit) {
                     Text("Shipment ID: ${tracker.shipmentId}")
                     Text("Status: ${tracker.shipmentStatus}")
                     Text("Location: ${tracker.location}")
-                    Text("Expected Delivery Date: ${tracker.expectedShipmentDeliveryDate}")
+                    Text("Expected Delivery Date: ${formatDateTime(tracker.expectedShipmentDeliveryDate)}")
                 }
                 IconButton(onClick = onRemove) {
                     Icon(Icons.Default.Close, contentDescription = "Remove")
@@ -101,7 +105,7 @@ fun ShipmentCard(tracker: TrackerViewHelper, onRemove: () -> Unit) {
             }
             Text("Updates:")
             tracker.shipmentUpdateHistory.forEach { update ->
-                Text("- ${update.previousStatus} to ${update.newStatus} on ${update.timestamp}")
+                Text("- ${update.previousStatus} to ${update.newStatus} on ${formatDateTime(update.timestamp)}")
             }
             Text("Notes:")
             tracker.shipmentNotes.forEach { note ->
@@ -109,6 +113,13 @@ fun ShipmentCard(tracker: TrackerViewHelper, onRemove: () -> Unit) {
             }
         }
     }
+}
+
+fun formatDateTime(milliseconds: Long, zoneId: ZoneId = ZoneId.systemDefault()): String {
+    val instant = Instant.ofEpochMilli(milliseconds)
+    val dateTime = LocalDateTime.ofInstant(instant, zoneId)
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    return dateTime.format(formatter)
 }
 
 fun main() = application {

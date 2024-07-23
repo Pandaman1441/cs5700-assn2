@@ -5,6 +5,7 @@ abstract class Shipment: Subject {
     val updateHistory = mutableListOf<ShippingUpdate>()
     var expectedDeliveryDateTimestamp: Long = 0L
     var currentLocation = ""
+    var createdTimeStamp: Long = 0L
     private val observers = mutableListOf<Observer>()
 
     fun addNote(note: String){
@@ -39,16 +40,22 @@ class StandardShipment(): Shipment() {
 }
 class ExpressShipment(): Shipment() {
     override fun addUpdate(update: ShippingUpdate) {
-        TODO("Not yet implemented")
+        if (expectedDeliveryDateTimestamp > createdTimeStamp + 3 * 24 * 60 * 60 * 1000){
+            addNote("Shipment expected later than the expected 3 days for express shipping")
+        }
     }
 }
 class OvernightShipment(): Shipment() {
     override fun addUpdate(update: ShippingUpdate) {
-        TODO("Not yet implemented")
+        if (expectedDeliveryDateTimestamp > createdTimeStamp + 24 * 60 * 60 * 1000){
+            addNote("Shipment expected later than the expected 1 day for overnight shipping")
+        }
     }
 }
 class BulkShipment(): Shipment(){
     override fun addUpdate(update: ShippingUpdate) {
-        TODO("Not yet implemented")
+        if (expectedDeliveryDateTimestamp < createdTimeStamp + 3 * 24 * 60 * 60 * 1000){
+            addNote("Shipment expected sooner than the required 3 days waiting time for bulk shipping")
+        }
     }
 }

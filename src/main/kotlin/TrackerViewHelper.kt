@@ -6,7 +6,7 @@ class TrackerViewHelper: Observer {
     var shipmentId by mutableStateOf("")
     var shipmentNotes by mutableStateOf(listOf<String>())
     var shipmentUpdateHistory by mutableStateOf(listOf<ShippingUpdate>())
-    var expectedShipmentDeliveryDate by mutableStateOf("")
+    var expectedShipmentDeliveryDate by mutableStateOf(0L)
     var shipmentStatus by mutableStateOf("")
     var location by mutableStateOf("")
     var invalidMessage by mutableStateOf("")
@@ -30,7 +30,7 @@ class TrackerViewHelper: Observer {
         shipmentId = ""
         shipmentNotes = emptyList()
         shipmentUpdateHistory = emptyList()
-        expectedShipmentDeliveryDate = ""
+        expectedShipmentDeliveryDate = 0L
         shipmentStatus = ""
         location = ""
     }
@@ -39,7 +39,7 @@ class TrackerViewHelper: Observer {
         if (shipment.id == shipmentId) {
             shipmentNotes = shipment.notes
             shipmentUpdateHistory = shipment.updateHistory
-            expectedShipmentDeliveryDate = shipment.expectedDeliveryDateTimestamp.toString()
+            expectedShipmentDeliveryDate = shipment.expectedDeliveryDateTimestamp
             shipmentStatus = shipment.status
             location = shipment.currentLocation
         }

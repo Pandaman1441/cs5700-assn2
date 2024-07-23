@@ -49,23 +49,34 @@ object TrackingSimulator {
         }
     }
 
-    private fun createShipment( shipmentStatus: String, shipmentId: String, type: String): Shipment {
-        return when (type){
+    private fun createShipment(parts: List<String> ): Shipment {
+        val shipmentStatus = parts[0]
+        val shipmentId = parts[1]
+        val timeStamp = parts[3].toLong()
+        return when (val type = parts[2]){
             "standard" -> StandardShipment().apply {
                 id = shipmentId
-                status = shipmentStatus}
+                status = shipmentStatus
+                createdTimeStamp = timeStamp
+            }
 
             "express" -> ExpressShipment().apply {
                 id = shipmentId
-                status = shipmentStatus}
+                status = shipmentStatus
+                createdTimeStamp = timeStamp
+            }
 
             "overnight" -> OvernightShipment().apply {
                 id = shipmentId
-                status = shipmentStatus}
+                status = shipmentStatus
+                createdTimeStamp = timeStamp
+            }
 
             "bulk" -> BulkShipment().apply {
                 id = shipmentId
-                status = shipmentStatus}
+                status = shipmentStatus
+                createdTimeStamp = timeStamp
+            }
 
             else -> throw IllegalArgumentException("Unknown shipment type: $type")
         }
@@ -75,7 +86,7 @@ object TrackingSimulator {
     private fun processLine(line: String) {
         val parts = line.split(",")
         if (parts[0] == "created") {
-            addShipment(createShipment(parts[0], parts[1], parts[2]))
+            addShipment(createShipment(parts))
         }
         else {
             val previousStatus = findShipment(parts[1])?.status
