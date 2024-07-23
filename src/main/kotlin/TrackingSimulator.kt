@@ -36,10 +36,6 @@ object TrackingSimulator {
                                 "delivered" -> FinalShippingUpdate(findShipment(parts[1])?.status ?: "", parts[0], parts[1], parts[2].toLong())
                             }
                         }
-
-                        println(timer)
-                        timer--
-                        delay(1000)
                     }
                 }
         }
