@@ -49,7 +49,7 @@ object TrackingSimulator {
         }
     }
 
-    private fun createShipment(parts: List<String> ): Shipment {
+    fun createShipment(parts: List<String> ): Shipment {
         val shipmentStatus = parts[0]
         val shipmentId = parts[1]
         val timeStamp = parts[3].toLong()
@@ -83,7 +83,7 @@ object TrackingSimulator {
 
     }
 
-    private fun processLine(line: String) {
+    fun processLine(line: String) {
         val parts = line.split(",")
         if (parts[0] == "created") {
             addShipment(createShipment(parts))
