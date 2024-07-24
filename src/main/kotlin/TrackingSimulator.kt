@@ -91,8 +91,15 @@ object TrackingSimulator {
         else {
             val previousStatus = findShipment(parts[1])?.status
             val updateType = parts[0]
-            val updateArguments = listOf(previousStatus, updateType, parts[1],parts[2].toLong(), parts.getOrNull(3) ?: "")
-            updateMapping[updateType]?.call(*updateArguments.toTypedArray())
+            val extra = parts.getOrNull(3)
+            if (extra != null) {
+                val updateArguments = listOf(previousStatus, updateType, parts[1], parts[2].toLong(), extra)
+                updateMapping[updateType]?.call(*updateArguments.toTypedArray())
+            }
+            else {
+                val updateArguments = listOf(previousStatus, updateType, parts[1], parts[2].toLong())
+                updateMapping[updateType]?.call(*updateArguments.toTypedArray())
+            }
         }
     }
 }
