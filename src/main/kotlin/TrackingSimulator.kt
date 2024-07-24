@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.*
 import java.io.File
-import kotlin.reflect.KFunction5
 
 object TrackingSimulator {
     private val shipments = mutableListOf<Shipment>()
